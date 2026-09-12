@@ -1,0 +1,11 @@
+node_modules/
+out/
+dist/
+dist-electron/
+release/
+.DS_Store
+*.log
+
+# Personal WoW SavedVariables sample data - large, not meant for version control
+/WeakAuras_wow5.lua
+/WeakAuras_wow6.lua

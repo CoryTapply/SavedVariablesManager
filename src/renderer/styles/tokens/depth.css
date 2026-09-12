@@ -1,0 +1,22 @@
+/* Zerpy — depth and motion
+   Depth is border + blur + soft ambient shadow. Three steps only: flat rows
+   inside panels, panels on the page, overlays above everything. Never nest a
+   blur inside a blur. */
+:root {
+  --zp-blur-sm: 8px;
+  --zp-blur-md: 14px;
+  --zp-blur-lg: 22px;
+
+  --zp-elev-flat:    none;
+  --zp-elev-panel:   0 14px 40px rgba(4,4,12,.45), inset 0 1px 0 rgba(255,255,255,.05);
+  --zp-elev-overlay: 0 28px 70px rgba(3,3,10,.62), inset 0 1px 0 rgba(255,255,255,.07);
+
+  --zp-ease: cubic-bezier(.2,.7,.3,1);
+  --zp-dur-fast: 120ms;
+  --zp-dur: 180ms;
+  --zp-dur-slow: 280ms;
+
+  /* Focus brightens the control's own edge — no offset ring. */
+  --zp-focus-line: var(--zp-line-accent);
+  --zp-focus-shadow: 0 0 0 1px var(--zp-line-accent), var(--zp-accent-glow);
+}

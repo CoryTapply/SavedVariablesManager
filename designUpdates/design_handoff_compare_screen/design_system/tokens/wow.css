@@ -1,0 +1,22 @@
+/* Zerpy — identity add-on: World of Warcraft vocabulary
+   Class and faction colors are Blizzard's own values, used as identity rails and
+   dots only. Never as surfaces or text. Load only in guild-facing projects.
+   These are third-party brand values, not Zerpy's — do not restyle them, and do
+   not remap them to mean status. */
+:root {
+  --zp-class-death-knight: #C41E3A;
+  --zp-class-demon-hunter: #A330C9;
+  --zp-class-druid:        #FF7C0A;
+  --zp-class-evoker:       #33937F;
+  --zp-class-hunter:       #AAD372;
+  --zp-class-mage:         #3FC7EB;
+  --zp-class-monk:         #00FF98;
+  --zp-class-paladin:      #F48CBA;
+  --zp-class-priest:       #E9E9ED;
+  --zp-class-rogue:        #FFF468;
+  --zp-class-shaman:       #0070DD;
+  --zp-class-warlock:      #8788EE;
+  --zp-class-warrior:      #C69B6D;
+  --zp-faction-horde:      #ff4b4b;
+  --zp-faction-alliance:   #5aa8ff;
+}
