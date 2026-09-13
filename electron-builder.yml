@@ -1,5 +1,5 @@
-appId: dev.zerpy.savedvariablesanalyzer
-productName: SavedVariables Comparator
+appId: dev.zerpy.savedvariablemanager
+productName: SavedVariableManager
 directories:
   buildResources: build
 files:
@@ -12,3 +12,7 @@ win:
   target: nsis
 linux:
   target: AppImage
+publish:
+  provider: github
+  owner: CoryTapply
+  repo: SavedVariablesManager
