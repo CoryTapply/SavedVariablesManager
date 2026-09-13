@@ -37,7 +37,30 @@ jobs:
       - name: Build renderer/main
         run: npm run build
 
-      - name: Build and publish
-        run: npx electron-builder --publish always
+      - name: Package
+        run: npx electron-builder --publish never
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.os }}
+          path: |
+            dist/*.dmg
+            dist/*.exe
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download installers
+        uses: actions/download-artifact@v4
+        with:
+          path: installers
+          pattern: installer-*
+          merge-multiple: true
+
+      - name: Create release
+        run: gh release create "$GITHUB_REF_NAME" installers/* --title "$GITHUB_REF_NAME" --generate-notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
