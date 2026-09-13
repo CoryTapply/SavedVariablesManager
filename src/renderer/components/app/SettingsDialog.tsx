@@ -37,6 +37,7 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
   const [openAccounts, setOpenAccounts] = useState<Record<string, boolean>>({})
   const [accountChars, setAccountChars] = useState<Record<string, AccountServerCharacters[] | undefined>>({})
   const [loadingChars, setLoadingChars] = useState<Record<string, boolean>>({})
+  const [appVersion, setAppVersion] = useState<string | null>(null)
 
   useEffect(() => {
     void (async () => {
@@ -44,6 +45,10 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
       setBackupsDir(dir)
       setLoadingBackupsDir(false)
     })()
+  }, [])
+
+  useEffect(() => {
+    void invoke('app:getVersion', undefined).then(setAppVersion)
   }, [])
 
   const handleChooseBackupsDir = async () => {
@@ -114,10 +119,15 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
       width={620}
       footer={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-          <span style={{ font: 'var(--zp-text-sm)', color: 'var(--zp-text-4)' }}>
-            {flavorOptions.length} flavor{flavorOptions.length === 1 ? '' : 's'} detected · {uniqueAccountNames.length}{' '}
-            account{uniqueAccountNames.length === 1 ? '' : 's'}
-          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--zp-space-1)' }}>
+            <span style={{ font: 'var(--zp-text-sm)', color: 'var(--zp-text-4)' }}>
+              {flavorOptions.length} flavor{flavorOptions.length === 1 ? '' : 's'} detected · {uniqueAccountNames.length}{' '}
+              account{uniqueAccountNames.length === 1 ? '' : 's'}
+            </span>
+            {appVersion ? (
+              <span style={{ font: 'var(--zp-text-micro)', color: 'var(--zp-text-4)' }}>Version {appVersion}</span>
+            ) : null}
+          </div>
           <div style={{ display: 'flex', gap: 'var(--zp-space-2)' }}>
             <Button intent="ghost" onClick={onClose}>
               Cancel

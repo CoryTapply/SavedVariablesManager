@@ -1,4 +1,4 @@
-import { ipcMain, dialog, BrowserWindow, type IpcMainInvokeEvent } from 'electron'
+import { app, ipcMain, dialog, BrowserWindow, type IpcMainInvokeEvent } from 'electron'
 import type { AccountMetaMap, CompareSelectionPreference } from '@shared/addonTypes'
 import {
   getBackupsDir,
@@ -14,6 +14,8 @@ function windowFor(event: IpcMainInvokeEvent): BrowserWindow | undefined {
 }
 
 export function registerSettingsHandlers(): void {
+  ipcMain.handle('app:getVersion', async () => app.getVersion())
+
   ipcMain.handle('settings:getBackupsDir', async () => getBackupsDir())
 
   ipcMain.handle('settings:chooseBackupsDir', async (event) => {

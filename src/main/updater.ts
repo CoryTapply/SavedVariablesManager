@@ -1,4 +1,4 @@
-import { app, dialog, shell } from 'electron'
+import { app, dialog, Notification, shell } from 'electron'
 import electronUpdater from 'electron-updater'
 import { isNewerVersion } from './versionCompare'
 
@@ -14,6 +14,10 @@ interface GithubRelease {
 
 function initWindowsUpdater(): void {
   autoUpdater.autoDownload = false
+  autoUpdater.disableWebInstaller = true
+  autoUpdater.disableDifferentialDownload = true
+
+  let downloadRequested = false
 
   autoUpdater.on('update-available', (info) => {
     void dialog
@@ -26,11 +30,20 @@ function initWindowsUpdater(): void {
         cancelId: 1
       })
       .then((result) => {
-        if (result.response === 0) void autoUpdater.downloadUpdate()
+        if (result.response !== 0) return
+        downloadRequested = true
+        if (Notification.isSupported()) {
+          new Notification({
+            title: 'Downloading update',
+            body: "You'll be notified when it's ready to install."
+          }).show()
+        }
+        void autoUpdater.downloadUpdate()
       })
   })
 
   autoUpdater.on('update-downloaded', () => {
+    downloadRequested = false
     void dialog
       .showMessageBox({
         type: 'info',
@@ -47,6 +60,15 @@ function initWindowsUpdater(): void {
 
   autoUpdater.on('error', (error) => {
     console.error('[updater]', error)
+    if (downloadRequested) {
+      downloadRequested = false
+      void dialog.showMessageBox({
+        type: 'error',
+        message: 'Update failed',
+        detail: error.message,
+        buttons: ['OK']
+      })
+    }
   })
 
   void autoUpdater.checkForUpdates()

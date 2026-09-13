@@ -33,6 +33,7 @@ export type CopyAddonFileResponse =
   | { ok: false; reason: 'error'; message: string }
 
 export interface IpcContract {
+  'app:getVersion': { request: void; response: string }
   'wow:getRoot': { request: void; response: string | null }
   'wow:chooseRoot': { request: void; response: string | null }
   'wow:discover': { request: void; response: DiscoveredAccounts | null }
