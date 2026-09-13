@@ -19,9 +19,9 @@ function createWindow(): void {
       process.platform === 'darwin'
         ? undefined
         : {
-            color: '#0d0e18',
+            color: 'rgba(0,0,0,0)',
             symbolColor: '#e6e6f0',
-            height: 32
+            height: 28
           },
     backgroundColor: '#0d0e18',
     icon,
