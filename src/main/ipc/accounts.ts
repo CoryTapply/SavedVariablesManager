@@ -1,7 +1,7 @@
 import { ipcMain, dialog, BrowserWindow, type IpcMainInvokeEvent } from 'electron'
 import { getWowRoot, setWowRoot, getFlavorPreference, setFlavorPreference } from './store'
-import { discoverAccounts } from '../wow/accountDiscovery'
-import type { DiscoveredAccounts } from '@shared/addonTypes'
+import { discoverAccounts, listAccountCharacters } from '../wow/accountDiscovery'
+import type { AccountServerCharacters, DiscoveredAccounts } from '@shared/addonTypes'
 
 function windowFor(event: IpcMainInvokeEvent): BrowserWindow | undefined {
   return BrowserWindow.fromWebContents(event.sender) ?? undefined
@@ -26,6 +26,12 @@ export function registerAccountHandlers(): void {
     if (!root) return null
     return discoverAccounts(root)
   })
+
+  ipcMain.handle(
+    'wow:listAccountCharacters',
+    async (_event, req: { accountDir: string }): Promise<AccountServerCharacters[]> =>
+      listAccountCharacters(req.accountDir)
+  )
 
   ipcMain.handle('wow:getFlavorPreference', async () => getFlavorPreference())
 

@@ -17,6 +17,7 @@ export interface DiscoveredAddonFile {
   depth: AddonAnalyzerDepth
   filePath: string
   fileMtimeMs: number
+  fileSizeBytes: number
 }
 
 export interface DiscoveredAccounts {
@@ -25,10 +26,36 @@ export interface DiscoveredAccounts {
     accountName: string
     flavor: WowFlavor
     flavorLabel: string
+    /** The account's own folder (`WTF/Account/<accountName>`) - parent of
+     * `savedVariablesDir`, and of the realm/character folders `listAccountCharacters` reads. */
+    accountDir: string
     /** Where this account's addon files live (or would live, for an addon it hasn't saved
      * anything for yet) - lets the UI offer this account as a copy destination even when
      * `files` doesn't have an entry for the addon being compared. */
     savedVariablesDir: string
     files: DiscoveredAddonFile[]
   }>
+}
+
+/** One realm's characters under an account folder, as returned by `listAccountCharacters` -
+ * see [[wow-addon-file-format]] for the on-disk `WTF/Account/<id>/<Realm>/<Character>` shape. */
+export interface AccountServerCharacters {
+  server: string
+  characters: string[]
+}
+
+/** App-local label/favorite for an account, keyed by its raw folder name (`accountName`, e.g.
+ * `1234567890#5`). Never renames anything on disk - see [[wow-addon-file-format]]. */
+export interface AccountMeta {
+  name: string
+  favorite: boolean
+}
+
+export type AccountMetaMap = Record<string, AccountMeta>
+
+/** Persisted addon/account picks for the compare screen (README: "selection, persisted"). */
+export interface CompareSelectionPreference {
+  addonId: string
+  accountA: string
+  accountB: string
 }

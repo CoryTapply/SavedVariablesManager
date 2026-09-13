@@ -123,7 +123,17 @@
 .zp-sel:disabled ~ .zp-sel-arrow { opacity: .45; }
 .zp-ta { height: auto; min-height: 84px; padding: 10px; resize: vertical; line-height: 1.6; }
 
-/* ── Bare interactive rows (checkbox, radio, switch, segment) ── */
+/* ── Dropdown option rows (AccountSelect, AddonSelect, FlavorSelect) ── */
+.zp-opt {
+  color: var(--zp-text-2);
+  background: transparent;
+  transition: background var(--zp-dur) var(--zp-ease), color var(--zp-dur) var(--zp-ease);
+}
+.zp-opt:hover { background: var(--zp-surface-2); color: var(--zp-text); }
+.zp-opt-selected { background: var(--zp-accent-tint); color: var(--zp-accent-200); }
+.zp-opt-selected:hover { background: var(--zp-accent-tint-strong); color: var(--zp-accent-200); }
+
+/* ── Bare interactive rows (checkbox, radio, switch) ── */
 .zp-choice {
   display: flex; align-items: center; gap: 9px;
   padding: 0; border: none; background: none;
@@ -134,27 +144,20 @@
 .zp-choice:focus-visible > span:first-child { border-color: var(--zp-focus-line); box-shadow: var(--zp-focus-shadow); }
 .zp-choice:disabled { opacity: .45; cursor: not-allowed; }
 
-.zp-seg-btn {
-  height: var(--zp-control-h-sm); padding: 0 14px;
-  border-radius: var(--zp-radius-xs);
-  font: var(--zp-text-label); cursor: pointer;
-  position: relative; z-index: 1;
+.zp-switch { flex: 0 0 auto; width: 40px; height: 22px; padding: 0; border-radius: var(--zp-radius-pill); position: relative; cursor: pointer; transition: all var(--zp-dur) var(--zp-ease); }
+
+/* ── Account row disclosure button (SettingsDialog characters) ── */
+.zp-disclosure {
+  color: var(--zp-text-4);
+  border: 1px solid transparent;
   transition: color var(--zp-dur) var(--zp-ease);
 }
-/* The selected state is drawn by a single thumb that slides between segments. */
-.zp-seg-thumb {
-  position: absolute; top: 3px; bottom: 3px; left: 0; width: 0;
-  border-radius: var(--zp-radius-xs);
-  border: 1px solid var(--zp-line-accent);
-  background: var(--zp-accent-tint);
-  pointer-events: none;
-  transition: transform var(--zp-dur-slow, 220ms) var(--zp-ease-out, cubic-bezier(.32,.72,0,1)), width var(--zp-dur-slow, 220ms) var(--zp-ease-out, cubic-bezier(.32,.72,0,1));
+.zp-disclosure:hover { color: var(--zp-text-2); }
+.zp-disclosure:focus-visible {
+  outline: none;
+  border-color: var(--zp-focus-line);
+  box-shadow: var(--zp-focus-shadow);
 }
-.zp-seg-thumb[data-init="1"] { transition: none; }
-@media (prefers-reduced-motion: reduce) { .zp-seg-thumb { transition: none; } }
-.zp-seg-btn:focus-visible { outline: none; border-color: var(--zp-focus-line); box-shadow: var(--zp-focus-shadow); }
-
-.zp-switch { flex: 0 0 auto; width: 40px; height: 22px; padding: 0; border-radius: var(--zp-radius-pill); position: relative; cursor: pointer; transition: all var(--zp-dur) var(--zp-ease); }
 .zp-switch:focus-visible { outline: none; border-color: var(--zp-focus-line); box-shadow: var(--zp-focus-shadow); }
 
 /* ── Code ──────────────────────────────────────────────────── */
@@ -187,12 +190,15 @@
   50%      { box-shadow: var(--zp-accent-glow-strong); }
 }
 
-/* Top-level screen swap (SelectFilesScreen <-> ComparisonResultsScreen): enter-only, the old
-   screen is already gone by the time the new one mounts so there's nothing to exit. */
-.zp-screen-enter { animation: zp-slide-in var(--zp-dur-slow) var(--zp-ease); }
+/* Compare screen: command bar collapsing into the context strip, and the master-detail split
+   opening beneath it with a stagger - see designUpdates/design_handoff_compare_screen/README.md. */
+@keyframes zp-collapse-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@keyframes zp-open-below  { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.zp-collapse-in { animation: zp-collapse-in var(--zp-dur) var(--zp-ease) both; }
+.zp-open-below  { animation: zp-open-below var(--zp-dur-slow) var(--zp-ease) 100ms both; }
 
 @media (prefers-reduced-motion: reduce) {
   .zp-cta-pulse, .zp-cta-orbit > .zp-ring, .zp-sk, .zp-sk-pulse { animation: none; }
   .zp-cta-pulse { box-shadow: var(--zp-accent-glow-strong); }
-  .zp-screen-enter { animation: zp-fade-in var(--zp-dur-slow) var(--zp-ease); }
+  .zp-collapse-in, .zp-open-below { animation: none; }
 }

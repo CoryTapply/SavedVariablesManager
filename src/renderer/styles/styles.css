@@ -9,7 +9,7 @@
 @import url('./tokens/wow.css');
 @import url('./controls.css');
 
-html, body {
+html, body, #root {
   margin: 0;
   height: 100%;
   background: var(--zp-ground);

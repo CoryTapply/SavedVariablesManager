@@ -18,6 +18,7 @@ describe('weakAurasAnalyzer', () => {
     expect(result.summary).toEqual({ added: 0, removed: 0, changed: 1, unchanged: 0 })
     expect(result.entries[0]?.matchedBy).toBe('uid')
     expect(result.entries[0]?.key).toBe('New Name')
+    expect(result.entries[0]?.entryId).toBe('u1')
   })
 
   it('falls back to matching by id when uid is missing or differs', () => {
@@ -27,6 +28,7 @@ describe('weakAurasAnalyzer', () => {
     expect(result.entries[0]?.matchedBy).toBe('id')
     expect(result.entries[0]?.status).toBe('changed')
     expect(result.entries[0]?.fieldDiffs).toEqual([{ path: ['duration'], oldValue: 5, newValue: 8, kind: 'changed' }])
+    expect(result.entries[0]?.entryId).toBe('Foo')
   })
 
   it('reports unmatched entries as added or removed', () => {
@@ -34,6 +36,8 @@ describe('weakAurasAnalyzer', () => {
     const b = displays({ New: { uid: 'u2', id: 'New' } })
     const result = weakAurasAnalyzer.compare(a, b)
     expect(result.summary).toEqual({ added: 1, removed: 1, changed: 0, unchanged: 0 })
+    const ids = result.entries.map((e) => e.entryId).sort()
+    expect(ids).toEqual(['u1', 'u2'])
   })
 
   it('reports unchanged auras with no field diffs', () => {

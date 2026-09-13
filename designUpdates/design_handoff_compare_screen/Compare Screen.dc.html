@@ -8,7 +8,6 @@
   <body>
     <x-dc>
       <helmet data-dc-atomics>
-        <meta name="design_doc_mode" content="canvas" />
         <link rel="stylesheet" href="_ds/zerpy/tokens/fonts.css" />
         <link rel="stylesheet" href="_ds/zerpy/tokens/colors.css" />
         <link rel="stylesheet" href="_ds/zerpy/tokens/scale.css" />
@@ -18,7 +17,9 @@
         <link rel="stylesheet" href="_ds/zerpy/tokens/dataviz.css" />
         <link rel="stylesheet" href="_ds/zerpy/tokens/wow.css" />
         <style>
-          body { margin: 0; background: #eeece6; font-family: system-ui, sans-serif; }
+          body { margin: 0; background: #08080f; font-family: system-ui, sans-serif; }
+          .zp-page { padding: 24px; overflow-x: auto; }
+          .zp-page > .zp-frame { margin: 0 auto; flex: none; }
 
           /* ── canvas chrome (turns / option labels) ─────────────────────── */
           .dv-turn { padding: 40px 44px 56px; }
@@ -118,17 +119,9 @@
         </style>
       </helmet>
 
-      <!-- TURN 3 — 1a + 2b combined, interactive -->
-      <section class="dv-turn" id="t3">
-        <div class="dv-thd"><a class="dv-tid" href="#t3">3</a><span class="dv-tname">Combined — 1a command bar that collapses into 2b's master–detail</span></div>
-        <p class="dv-tdesc">Live prototype: press Compare and the selection bar shrinks to a single line at the top, then the master–detail comparison opens below it. The list is clickable — pick any aura to read its full diff. "Change selection" returns the bar to full size.</p>
-        <div class="dv-opts">
-          <div class="dv-opt" id="3a">
-            <div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a>Selection stays on screen as a one-line bar; results own the rest of the window</div>
-            <div class="dv-card">
+      <div class="zp-page">
               <div class="zp-frame" style="min-height: 720px;">
                 <div class="zp-star"></div>
-                <div class="zp-titlebar"></div>
 
                 <sc-if value="{{ isIdle }}" hint-placeholder-val="{{ true }}">
                   <div class="zp-pad">
@@ -195,7 +188,6 @@
                     <div class="zp-col zp-scroll" style="width: 360px; border-right: 1px solid var(--zp-line); flex: none;">
                       <div class="zp-row" style="padding: var(--zp-space-3) var(--zp-space-4); gap: var(--zp-space-2); border-bottom: 1px solid var(--zp-line);">
                         <div class="zp-field" style="flex:1; height: var(--zp-control-h-sm); display:flex; align-items:center; padding:0 10px; color:var(--zp-text-4); font:var(--zp-text-sm);">⌕ Filter…</div>
-                        <div class="zp-segmented"><div class="zp-segment on" style="padding:0 10px;">{{ filterLabel }}</div></div>
                       </div>
                       <sc-for list="{{ auras }}" as="aura" hint-placeholder-count="5">
                         <div class="zp-row" style="{{ aura.rowStyle }}" onClick="{{ aura.select }}">
@@ -290,12 +282,12 @@
                         </div>
                         <div class="zp-col" style="gap: 8px;">
                           <span class="zp-label">Accounts</span>
-                          <div class="zp-col zp-scroll" style="max-height: 196px; border: 1px solid var(--zp-line); border-radius: var(--zp-radius);">
+                          <div class="zp-col zp-scroll" style="max-height: 176px; border: 1px solid var(--zp-line); border-radius: var(--zp-radius); background: var(--zp-surface-1);">
                             <sc-for list="{{ accountRows }}" as="acct" hint-placeholder-count="4">
-                              <div class="zp-row" style="gap: var(--zp-space-3); padding: 8px var(--zp-space-3); border-bottom: 1px solid var(--zp-line);">
+                              <div class="zp-row" style="gap: var(--zp-space-2); padding: 5px var(--zp-space-2) 5px 4px; border-bottom: 1px solid var(--zp-line);">
                                 <button style="{{ acct.favStyle }}" onClick="{{ acct.toggleFav }}" title="Sort to the top">{{ acct.favGlyph }}</button>
-                                <span class="zp-data" style="width: 128px; flex: none; color: var(--zp-text-3); font-size: 12px;">{{ acct.id }}</span>
                                 <input class="zp-field" style="flex: 1; height: var(--zp-control-h-sm); padding: 0 10px; color: var(--zp-text); font: var(--zp-text-sm); outline: none;" value="{{ acct.name }}" onChange="{{ acct.rename }}" placeholder="Add a name" />
+                                <span class="zp-data" style="flex: none; color: var(--zp-text-4); font-size: 11.5px;">{{ acct.id }}</span>
                               </div>
                             </sc-for>
                           </div>
@@ -341,406 +333,7 @@
                   </div>
                 </sc-if>
               </div>
-            </div>
-          </div>
-        </div>
-        <p class="dv-next">Try next: "keep the A/B selects live in the collapsed bar so I can re-run without expanding" · "add <a class="dv-oid" href="#2a">2a</a>'s group-by-parent headers to the list" · "show a recent-pairs row on the idle screen"</p>
-      </section>
-
-      <!-- TURN 2 — Results screen: scanability at high aura/field-diff density -->
-      <section class="dv-turn" id="t2">
-        <div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Results screen — scanning hundreds of changed auras</span></div>
-        <p class="dv-tdesc">Today every changed aura is its own always-visible row that you expand one at a time — fine for a handful of diffs, tedious once a real sync run turns up 100+ changed auras with several fields each. Both options keep every existing bit of data (stat counts, per-aura field diffs, the "other saved keys differ" footnote) but change how much of it you have to open to get an overview.</p>
-        <div class="dv-opts">
-
-          <!-- 2a -->
-          <div class="dv-opt" id="2a">
-            <div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Grouped rows + at-a-glance change bars — expand only what looks interesting</div>
-            <div class="dv-card">
-              <div class="zp-frame">
-                <div class="zp-star"></div>
-                <div class="zp-titlebar"></div>
-                <div class="zp-pad">
-                  <div class="zp-header-row">
-                    <div class="zp-col">
-                      <div class="zp-eyebrow">WeakAuras</div>
-                      <h2 class="zp-h2">Comparison results</h2>
-                      <div class="zp-desc">…SavedVariables/WeakAuras.lua (account 5) vs …SavedVariables/WeakAuras.lua (account 12)</div>
-                    </div>
-                    <div class="zp-row" style="gap: var(--zp-space-6);">
-                      <div class="zp-row" style="gap: var(--zp-space-4);">
-                        <div class="zp-row" style="gap:6px;"><span class="zp-dot success"></span><span class="zp-data">8</span><span class="zp-mutedsm">added</span></div>
-                        <div class="zp-row" style="gap:6px;"><span class="zp-dot danger"></span><span class="zp-data">12</span><span class="zp-mutedsm">removed</span></div>
-                        <div class="zp-row" style="gap:6px;"><span class="zp-dot warning"></span><span class="zp-data">116</span><span class="zp-mutedsm">changed</span></div>
-                        <div class="zp-row" style="gap:6px;"><span class="zp-dot neutral"></span><span class="zp-data">3417</span><span class="zp-mutedsm">unchanged</span></div>
-                      </div>
-                      <button class="zp-btn zp-btn-ghost">← Back</button>
-                    </div>
-                  </div>
-
-                  <div class="zp-row" style="gap: var(--zp-space-3); justify-content: space-between;">
-                    <div class="zp-segmented">
-                      <div class="zp-segment on">All</div><div class="zp-segment">Added</div><div class="zp-segment">Removed</div><div class="zp-segment">Changed</div>
-                    </div>
-                    <div class="zp-row" style="gap: var(--zp-space-3);">
-                      <label class="zp-row zp-field" style="gap:8px; padding:0 10px; height: var(--zp-control-h-sm);"><span style="color:var(--zp-text-4); font: var(--zp-text-sm);">⌕</span><span class="zp-mutedsm">Filter by name…</span></label>
-                      <label class="zp-row" style="gap:6px;"><span class="zp-mutedsm">Group by parent</span><span class="zp-pill" style="height:20px; padding:0 6px; background:var(--zp-accent-tint); border-color:var(--zp-line-accent);">on</span></label>
-                    </div>
-                  </div>
-
-                  <div class="zp-col" style="gap: var(--zp-space-5);">
-                    <div class="zp-col" style="gap: var(--zp-space-2);">
-                      <div class="zp-row" style="gap:8px; padding: 2px 2px;"><span class="zp-mutedsm" style="text-transform:uppercase; letter-spacing:var(--zp-tracking-micro);">Cooldowns</span><span class="zp-mutedsm">· 6 changed</span></div>
-                      <div class="zp-panel-flat" style="padding: var(--zp-space-1) 0;">
-                        <div class="zp-row" style="justify-content: space-between; padding: 9px var(--zp-space-4); border-bottom: 1px solid var(--zp-line);">
-                          <div class="zp-row" style="gap:10px;"><span class="zp-dot warning"></span><span>Trinket Watch — Slot 1</span></div>
-                          <div class="zp-row" style="gap: var(--zp-space-4);"><div class="zp-bar" style="width:64px;"><span style="width:70%; background:var(--zp-warning);"></span></div><span class="zp-mutedsm">3 fields</span></div>
-                        </div>
-                        <div class="zp-row" style="justify-content: space-between; padding: 9px var(--zp-space-4); border-bottom: 1px solid var(--zp-line);">
-                          <div class="zp-row" style="gap:10px;"><span class="zp-dot warning"></span><span>Trinket Watch — Slot 2</span></div>
-                          <div class="zp-row" style="gap: var(--zp-space-4);"><div class="zp-bar" style="width:64px;"><span style="width:25%; background:var(--zp-warning);"></span></div><span class="zp-mutedsm">1 field</span></div>
-                        </div>
-                        <div class="zp-col" style="padding: var(--zp-space-4); gap: var(--zp-space-3); background: var(--zp-surface-1);">
-                          <div class="zp-row" style="justify-content:space-between;">
-                            <div class="zp-row" style="gap:10px;"><span class="zp-dot warning"></span><span style="font:var(--zp-text-label);">Interrupt Tracker</span><span class="zp-mutedsm">in Cooldowns</span></div>
-                            <span class="zp-mutedsm">▾ 4 fields changed</span>
-                          </div>
-                          <div class="zp-col" style="gap: var(--zp-space-2); padding-left: 17px;">
-                            <div class="zp-row" style="gap:8px;"><span class="zp-badge warning">changed</span><span class="zp-data" style="color:var(--zp-text-3);">load › class</span></div>
-                            <div class="zp-row" style="gap: var(--zp-space-3); font: var(--zp-text-data); padding-left: 4px;"><span style="color:var(--zp-danger);">{WARRIOR, ROGUE}</span><span style="color:var(--zp-text-4);">→</span><span style="color:var(--zp-success);">{WARRIOR}</span></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="zp-col" style="gap: var(--zp-space-2);">
-                      <div class="zp-row" style="gap:8px; padding: 2px 2px;"><span class="zp-mutedsm" style="text-transform:uppercase; letter-spacing:var(--zp-tracking-micro);">Ungrouped</span><span class="zp-mutedsm">· 3 changed</span></div>
-                      <div class="zp-panel-flat" style="padding: var(--zp-space-1) 0;">
-                        <div class="zp-row" style="justify-content: space-between; padding: 9px var(--zp-space-4); border-bottom: 1px solid var(--zp-line);">
-                          <div class="zp-row" style="gap:10px;"><span class="zp-dot success"></span><span>Consumable Tracker</span></div>
-                          <span class="zp-badge success">added</span>
-                        </div>
-                        <div class="zp-row" style="justify-content: space-between; padding: 9px var(--zp-space-4);">
-                          <div class="zp-row" style="gap:10px;"><span class="zp-dot danger"></span><span>Old Phase Bar</span></div>
-                          <span class="zp-badge danger">removed</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="zp-panel-flat" style="padding: var(--zp-space-3) var(--zp-space-4);">
-                    <span class="zp-mutedsm">Other saved data outside of auras also differs (not shown above): only in A: <span class="zp-data">migrationVersion</span>.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 2b -->
-          <div class="dv-opt" id="2b">
-            <div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Master–detail split — browse a dense list, read one full diff at a time</div>
-            <div class="dv-card">
-              <div class="zp-frame">
-                <div class="zp-star"></div>
-                <div class="zp-titlebar"></div>
-                <div class="zp-pad" style="padding-bottom: 0;">
-                  <div class="zp-header-row">
-                    <div class="zp-col">
-                      <div class="zp-eyebrow">WeakAuras</div>
-                      <h2 class="zp-h2">Comparison results</h2>
-                    </div>
-                    <button class="zp-btn zp-btn-ghost">← Back</button>
-                  </div>
-                  <div class="zp-row" style="gap: var(--zp-space-4);">
-                    <span class="zp-pill"><span class="zp-dot success"></span>8 added</span>
-                    <span class="zp-pill"><span class="zp-dot danger"></span>12 removed</span>
-                    <span class="zp-pill"><span class="zp-dot warning"></span>116 changed</span>
-                    <span class="zp-mutedsm">3417 unchanged, hidden</span>
-                  </div>
-                </div>
-                <div class="zp-divider"></div>
-                <div class="zp-row" style="align-items: stretch; height: 560px;">
-                  <div class="zp-col zp-scroll" style="width: 360px; border-right: 1px solid var(--zp-line); flex: none;">
-                    <div class="zp-row" style="padding: var(--zp-space-3) var(--zp-space-4); gap: var(--zp-space-2); border-bottom: 1px solid var(--zp-line); position: sticky; top:0; background: var(--zp-bg-raised);">
-                      <div class="zp-field" style="flex:1; height: var(--zp-control-h-sm); display:flex; align-items:center; padding:0 10px; color:var(--zp-text-4); font:var(--zp-text-sm);">⌕ Filter…</div>
-                      <div class="zp-segmented"><div class="zp-segment on" style="padding:0 10px;">All</div></div>
-                    </div>
-                    <div class="zp-col">
-                      <div class="zp-row" style="justify-content: space-between; padding: 10px var(--zp-space-4); border-left: 2px solid var(--zp-accent); background: var(--zp-accent-tint);">
-                        <div class="zp-col" style="gap:2px;"><span style="font:var(--zp-text-label); color:var(--zp-text);">Interrupt Tracker</span><span class="zp-mutedsm">in Cooldowns</span></div>
-                        <span class="zp-badge warning">4</span>
-                      </div>
-                      <div class="zp-row" style="justify-content: space-between; padding: 10px var(--zp-space-4); border-left: 2px solid transparent; border-bottom: 1px solid var(--zp-line);">
-                        <div class="zp-col" style="gap:2px;"><span style="color:var(--zp-text-2);">Trinket Watch — Slot 1</span><span class="zp-mutedsm">in Cooldowns</span></div>
-                        <span class="zp-badge warning">3</span>
-                      </div>
-                      <div class="zp-row" style="justify-content: space-between; padding: 10px var(--zp-space-4); border-left: 2px solid transparent; border-bottom: 1px solid var(--zp-line);">
-                        <div class="zp-col" style="gap:2px;"><span style="color:var(--zp-text-2);">Trinket Watch — Slot 2</span><span class="zp-mutedsm">in Cooldowns</span></div>
-                        <span class="zp-badge warning">1</span>
-                      </div>
-                      <div class="zp-row" style="justify-content: space-between; padding: 10px var(--zp-space-4); border-left: 2px solid transparent; border-bottom: 1px solid var(--zp-line);">
-                        <div class="zp-col" style="gap:2px;"><span style="color:var(--zp-text-2);">Consumable Tracker</span></div>
-                        <span class="zp-badge success">added</span>
-                      </div>
-                      <div class="zp-row" style="justify-content: space-between; padding: 10px var(--zp-space-4); border-left: 2px solid transparent; border-bottom: 1px solid var(--zp-line);">
-                        <div class="zp-col" style="gap:2px;"><span style="color:var(--zp-text-2);">Old Phase Bar</span></div>
-                        <span class="zp-badge danger">removed</span>
-                      </div>
-                      <div class="zp-mutedsm" style="padding: 10px var(--zp-space-4);">… 131 more</div>
-                    </div>
-                  </div>
-                  <div class="zp-col zp-scroll" style="flex: 1; padding: var(--zp-space-5) var(--zp-space-6); gap: var(--zp-space-4);">
-                    <div class="zp-row" style="gap:10px; justify-content: space-between;">
-                      <div class="zp-row" style="gap:10px;"><span class="zp-badge warning">changed</span><span class="zp-h3">Interrupt Tracker</span><span class="zp-mutedsm">in Cooldowns</span></div>
-                      <span class="zp-mutedsm">4 fields changed</span>
-                    </div>
-                    <div class="zp-divider"></div>
-                    <div class="zp-col" style="gap: var(--zp-space-2);">
-                      <div class="zp-row" style="gap:8px;"><span class="zp-badge warning">changed</span><span class="zp-data" style="color:var(--zp-text-3);">load › class</span></div>
-                      <div class="zp-row" style="gap: var(--zp-space-3); font: var(--zp-text-data); padding-left: 4px;"><span style="color:var(--zp-danger);">{WARRIOR, ROGUE}</span><span style="color:var(--zp-text-4);">→</span><span style="color:var(--zp-success);">{WARRIOR}</span></div>
-                    </div>
-                    <div class="zp-col" style="gap: var(--zp-space-2);">
-                      <div class="zp-row" style="gap:8px;"><span class="zp-badge warning">changed</span><span class="zp-data" style="color:var(--zp-text-3);">actions › init › custom</span></div>
-                      <div class="zp-diffgrid">
-                        <div class="hd"><span>Before → After</span><span><span style="color:var(--zp-success);">+2</span> <span style="color:var(--zp-danger);">-1</span></span></div>
-                        <div class="cols">
-                          <div class="col rm">local class = UnitClass("player")<br>if class == "ROGUE" then<br>&nbsp;</div>
-                          <div class="col add">local class = UnitClass("player")<br><br>-- only warriors get the reflect proc</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="zp-panel-flat" style="padding: var(--zp-space-3) var(--zp-space-4);">
-                      <span class="zp-mutedsm">Other saved data outside of auras also differs (not shown above): only in A: <span class="zp-data">migrationVersion</span>.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        <p class="dv-next">Try next: "combine <a class="dv-oid" href="#2a">2a</a>'s search+group-by with <a class="dv-oid" href="#2b">2b</a>'s master-detail" · "make <a class="dv-oid" href="#2b">2b</a>'s list virtualized-feeling with a scroll position indicator" · "apply whichever wins here to the compare-screen file summaries too"</p>
-      </section>
-
-      <!-- TURN 1 — Compare (home) screen: selection flow -->
-      <section class="dv-turn" id="t1">
-        <div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Compare screen — addon + account selection</span></div>
-        <p class="dv-tdesc">Today's screen is two identical form-card columns ("Account A" / "Account B") stacked under a segmented addon picker — functional, but it reads like filling out a form rather than staging a comparison. All three options below keep the same underlying choices (flavor, addon, account A, account B, Compare, Copy A→B) and inline "no file for this addon" feedback, just restructured.</p>
-        <div class="dv-opts">
-
-          <!-- 1a -->
-          <div class="dv-opt" id="1a">
-            <div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Command bar — one continuous toolbar instead of two cards</div>
-            <div class="dv-card">
-              <div class="zp-frame">
-                <div class="zp-star"></div>
-                <div class="zp-titlebar"></div>
-                <div class="zp-pad">
-                  <div class="zp-header-row">
-                    <div class="zp-col">
-                      <div class="zp-eyebrow">WoW Addon Comparator</div>
-                      <h1 class="zp-h1">Compare SavedVariables files</h1>
-                      <div class="zp-desc">Pick two accounts to see what changed between their SavedVariables files.</div>
-                    </div>
-                    <div class="zp-row" style="gap: var(--zp-space-3);">
-                      <div class="zp-pill">Classic Era ▾</div>
-                      <div class="zp-iconbtn">⚙</div>
-                    </div>
-                  </div>
-
-                  <div class="zp-panel" style="padding: var(--zp-space-4); display:flex; align-items:center; gap: var(--zp-space-4); flex-wrap: wrap;">
-                    <div class="zp-select" style="width: 190px;"><span>◆ WeakAuras</span><span style="color:var(--zp-text-4);">▾</span></div>
-                    <div class="zp-vdivider" style="height: 28px;"></div>
-                    <div class="zp-col" style="gap:4px;">
-                      <span class="zp-label" style="font-size: 10px;">Account A</span>
-                      <div class="zp-select" style="width: 220px;"><span>1234567890#5</span><span style="color:var(--zp-text-4);">▾</span></div>
-                    </div>
-                    <div style="color: var(--zp-text-4); font-size: 18px; padding-top: 14px;">⇄</div>
-                    <div class="zp-col" style="gap:4px;">
-                      <span class="zp-label" style="font-size: 10px;">Account B</span>
-                      <div class="zp-select" style="width: 220px;"><span>1234567890#12</span><span style="color:var(--zp-text-4);">▾</span></div>
-                    </div>
-                    <div style="flex: 1;"></div>
-                    <button class="zp-btn zp-btn-primary">Compare</button>
-                    <button class="zp-btn zp-btn-ghost">Copy A → B</button>
-                  </div>
-
-                  <div class="zp-row" style="gap: var(--zp-space-4);">
-                    <div class="zp-pill" style="gap:10px;"><span class="zp-dot neutral"></span><span class="zp-data">WeakAuras.lua</span><span class="zp-mutedsm">24.8 MB · account 5</span></div>
-                    <div style="color: var(--zp-text-4);">→</div>
-                    <div class="zp-pill" style="gap:10px;"><span class="zp-dot neutral"></span><span class="zp-data">WeakAuras.lua</span><span class="zp-mutedsm">24.1 MB · account 12</span></div>
-                  </div>
-
-                  <div class="zp-panel-flat" style="padding: var(--zp-space-8); text-align:center; color: var(--zp-text-4); font: var(--zp-text-sm);">
-                    ↑ everything needed to run a comparison now lives in one row — the rest of the screen is free for results history / recent pairs later
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 1b -->
-          <div class="dv-opt" id="1b">
-            <div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Visual tiles — addon launcher row + account cards with a live file preview</div>
-            <div class="dv-card">
-              <div class="zp-frame">
-                <div class="zp-star"></div>
-                <div class="zp-titlebar"></div>
-                <div class="zp-pad">
-                  <div class="zp-header-row">
-                    <div class="zp-col">
-                      <div class="zp-eyebrow">WoW Addon Comparator</div>
-                      <h1 class="zp-h1">Compare SavedVariables files</h1>
-                    </div>
-                    <div class="zp-row" style="gap: var(--zp-space-3);">
-                      <div class="zp-pill">Classic Era ▾</div>
-                      <div class="zp-iconbtn">⚙</div>
-                    </div>
-                  </div>
-
-                  <div class="zp-col" style="gap: var(--zp-space-3);">
-                    <span class="zp-label">Addon</span>
-                    <div class="zp-row" style="gap: var(--zp-space-3);">
-                      <div class="zp-tile on"><div class="zp-tile-glyph">WA</div><span class="zp-tile-label">WeakAuras</span></div>
-                      <div class="zp-tile"><div class="zp-tile-glyph">P</div><span class="zp-tile-label">Plater</span></div>
-                      <div class="zp-tile"><div class="zp-tile-glyph">M</div><span class="zp-tile-label">MSBT</span></div>
-                      <div class="zp-tile"><div class="zp-tile-glyph">Z</div><span class="zp-tile-label">ZerpyUI</span></div>
-                      <div class="zp-tile"><div class="zp-tile-glyph">D</div><span class="zp-tile-label">Dominos</span></div>
-                      <div class="zp-tile" style="background:transparent; border-style:dashed;"><div class="zp-tile-glyph" style="background:transparent;">⋯</div><span class="zp-tile-label" style="color:var(--zp-text-4);">More</span></div>
-                    </div>
-                  </div>
-
-                  <div class="zp-row" style="gap: var(--zp-space-5); align-items: stretch;">
-                    <div class="zp-panel" style="flex:1; padding: var(--zp-space-5); display:flex; flex-direction:column; gap: var(--zp-space-4);">
-                      <div class="zp-row" style="gap: var(--zp-space-3);">
-                        <div class="zp-avatar">5</div>
-                        <div class="zp-col" style="gap:2px;">
-                          <span style="font:var(--zp-text-label);">Account A</span>
-                          <span class="zp-mutedsm">1234567890#5 · Classic Era</span>
-                        </div>
-                      </div>
-                      <div class="zp-divider"></div>
-                      <div class="zp-row" style="justify-content:space-between;">
-                        <div class="zp-col" style="gap:2px;"><span class="zp-data">WeakAuras.lua</span><span class="zp-mutedsm">24.8 MB · modified 2h ago</span></div>
-                        <span class="zp-badge success">found</span>
-                      </div>
-                    </div>
-
-                    <div class="zp-col" style="justify-content:center; align-items:center; gap: 6px; padding-top: var(--zp-space-8);">
-                      <div style="width:36px; height:36px; border-radius:999px; border:1px solid var(--zp-line-accent); display:flex; align-items:center; justify-content:center; color:var(--zp-accent-300);">⇄</div>
-                    </div>
-
-                    <div class="zp-panel" style="flex:1; padding: var(--zp-space-5); display:flex; flex-direction:column; gap: var(--zp-space-4);">
-                      <div class="zp-row" style="gap: var(--zp-space-3);">
-                        <div class="zp-avatar">12</div>
-                        <div class="zp-col" style="gap:2px;">
-                          <span style="font:var(--zp-text-label);">Account B</span>
-                          <span class="zp-mutedsm">1234567890#12 · Classic Era</span>
-                        </div>
-                      </div>
-                      <div class="zp-divider"></div>
-                      <div class="zp-row" style="justify-content:space-between;">
-                        <div class="zp-col" style="gap:2px;"><span class="zp-data">WeakAuras.lua</span><span class="zp-mutedsm">24.1 MB · modified 6d ago</span></div>
-                        <span class="zp-badge success">found</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="zp-col" style="align-items:center; gap: var(--zp-space-3); padding-top: var(--zp-space-2);">
-                    <button class="zp-btn zp-btn-primary zp-btn-lg" style="width: 260px;">Compare</button>
-                    <button class="zp-btn zp-btn-ghost">Copy account A → account B</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 1c -->
-          <div class="dv-opt" id="1c">
-            <div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Split workspace — persistent account rail + a staging panel, least form-like</div>
-            <div class="dv-card">
-              <div class="zp-frame">
-                <div class="zp-star"></div>
-                <div class="zp-titlebar"></div>
-                <div class="zp-row" style="align-items: stretch; height: 620px;">
-                  <div class="zp-col zp-scroll" style="width: 260px; border-right: 1px solid var(--zp-line); flex:none;">
-                    <div class="zp-col" style="padding: var(--zp-space-5) var(--zp-space-4) var(--zp-space-3); gap: 4px;">
-                      <span class="zp-eyebrow">WoW Addon Comparator</span>
-                      <span style="font: var(--zp-text-label);">Accounts</span>
-                    </div>
-                    <div class="zp-mutedsm" style="padding: 6px var(--zp-space-4); text-transform:uppercase; letter-spacing:var(--zp-tracking-micro); font-size:10px;">Classic Era</div>
-                    <div class="zp-row" style="justify-content:space-between; padding: 8px var(--zp-space-4); background: var(--zp-accent-tint); border-left:2px solid var(--zp-accent);">
-                      <span class="zp-data">…#5</span>
-                      <span class="zp-badge success" style="height:18px;">A</span>
-                    </div>
-                    <div class="zp-row" style="justify-content:space-between; padding: 8px var(--zp-space-4); border-left:2px solid transparent;">
-                      <span class="zp-data" style="color:var(--zp-text-2);">…#12</span>
-                      <span class="zp-badge warning" style="height:18px;">B</span>
-                    </div>
-                    <div class="zp-row" style="justify-content:space-between; padding: 8px var(--zp-space-4); border-left:2px solid transparent;">
-                      <span class="zp-data" style="color:var(--zp-text-2);">…#18</span>
-                      <span class="zp-mutedsm" style="font-size:10px;">set as A/B</span>
-                    </div>
-                    <div class="zp-mutedsm" style="padding: 6px var(--zp-space-4); text-transform:uppercase; letter-spacing:var(--zp-tracking-micro); font-size:10px; margin-top: var(--zp-space-3);">Retail</div>
-                    <div class="zp-row" style="justify-content:space-between; padding: 8px var(--zp-space-4); border-left:2px solid transparent;">
-                      <span class="zp-data" style="color:var(--zp-text-2);">…#5</span>
-                      <span class="zp-mutedsm" style="font-size:10px;">set as A/B</span>
-                    </div>
-                  </div>
-
-                  <div class="zp-col" style="flex:1; padding: var(--zp-space-6); gap: var(--zp-space-5);">
-                    <span class="zp-label">Addon</span>
-                    <div class="zp-row" style="gap: var(--zp-space-2); flex-wrap:wrap;">
-                      <div class="zp-pill" style="background:var(--zp-accent-tint); border-color:var(--zp-line-accent); color:var(--zp-accent-200);">WeakAuras</div>
-                      <div class="zp-pill">Plater</div>
-                      <div class="zp-pill">MSBT</div>
-                      <div class="zp-pill">ZerpyUI</div>
-                      <div class="zp-pill">Dominos</div>
-                      <div class="zp-pill" style="border-style:dashed; color:var(--zp-text-4);">More…</div>
-                    </div>
-                    <div class="zp-divider"></div>
-                    <span class="zp-label">All accounts with WeakAuras</span>
-                    <div class="zp-col" style="gap: var(--zp-space-2);">
-                      <div class="zp-row" style="justify-content:space-between; padding: var(--zp-space-3); border:1px solid var(--zp-line); border-radius: var(--zp-radius);">
-                        <div class="zp-row" style="gap:10px;"><span class="zp-avatar" style="width:28px;height:28px;font-size:11px;">5</span><span class="zp-data">WeakAuras.lua</span><span class="zp-mutedsm">24.8 MB</span></div>
-                        <span class="zp-mutedsm">…#5</span>
-                      </div>
-                      <div class="zp-row" style="justify-content:space-between; padding: var(--zp-space-3); border:1px solid var(--zp-line); border-radius: var(--zp-radius);">
-                        <div class="zp-row" style="gap:10px;"><span class="zp-avatar" style="width:28px;height:28px;font-size:11px;">12</span><span class="zp-data">WeakAuras.lua</span><span class="zp-mutedsm">24.1 MB</span></div>
-                        <span class="zp-mutedsm">…#12</span>
-                      </div>
-                      <div class="zp-row" style="justify-content:space-between; padding: var(--zp-space-3); border:1px solid var(--zp-line); border-radius: var(--zp-radius); opacity:.55;">
-                        <div class="zp-row" style="gap:10px;"><span class="zp-avatar" style="width:28px;height:28px;font-size:11px;">18</span><span class="zp-mutedsm">no WeakAuras file yet</span></div>
-                        <span class="zp-mutedsm">…#18</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="zp-vdivider"></div>
-                  <div class="zp-col" style="width: 300px; flex:none; padding: var(--zp-space-6) var(--zp-space-5); gap: var(--zp-space-4); justify-content:space-between;">
-                    <div class="zp-col" style="gap: var(--zp-space-4);">
-                      <span class="zp-label">Staged comparison</span>
-                      <div class="zp-panel-flat" style="padding: var(--zp-space-3);">
-                        <div class="zp-row" style="justify-content:space-between;"><span class="zp-badge success" style="height:18px;">A</span><span class="zp-data">…#5</span></div>
-                        <div class="zp-mutedsm" style="padding-top:4px;">WeakAuras.lua · 24.8 MB</div>
-                      </div>
-                      <div class="zp-panel-flat" style="padding: var(--zp-space-3);">
-                        <div class="zp-row" style="justify-content:space-between;"><span class="zp-badge warning" style="height:18px;">B</span><span class="zp-data">…#12</span></div>
-                        <div class="zp-mutedsm" style="padding-top:4px;">WeakAuras.lua · 24.1 MB</div>
-                      </div>
-                    </div>
-                    <div class="zp-col" style="gap: var(--zp-space-3);">
-                      <button class="zp-btn zp-btn-primary zp-btn-lg">Compare</button>
-                      <button class="zp-btn zp-btn-ghost">Copy A → B</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        <p class="dv-next">Try next: "make <a class="dv-oid" href="#1a">1a</a>'s toolbar the header, but use <a class="dv-oid" href="#1c">1c</a>'s account rail below it" · "show recent A/B pairs as one-click chips in <a class="dv-oid" href="#1a">1a</a>" · "add the flavor tabs as a real tab row instead of a pill in whichever direction we keep"</p>
-      </section>
+      </div>
 
       <script
         type="text/x-dc"

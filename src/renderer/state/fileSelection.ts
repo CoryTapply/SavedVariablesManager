@@ -4,4 +4,5 @@ export interface FileSelection {
   filePath: string
   label: string
   depth?: AddonAnalyzerDepth
+  fileSizeBytes?: number
 }

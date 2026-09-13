@@ -1,5 +1,13 @@
 import { ipcMain, dialog, BrowserWindow, type IpcMainInvokeEvent } from 'electron'
-import { getBackupsDir, setBackupsDir } from './store'
+import type { AccountMetaMap, CompareSelectionPreference } from '@shared/addonTypes'
+import {
+  getBackupsDir,
+  setBackupsDir,
+  getAccountMeta,
+  setAccountMeta,
+  getSelectionPreference,
+  setSelectionPreference
+} from './store'
 
 function windowFor(event: IpcMainInvokeEvent): BrowserWindow | undefined {
   return BrowserWindow.fromWebContents(event.sender) ?? undefined
@@ -18,5 +26,17 @@ export function registerSettingsHandlers(): void {
     const chosen = result.filePaths[0] ?? null
     if (chosen) setBackupsDir(chosen)
     return chosen
+  })
+
+  ipcMain.handle('settings:getAccountMeta', async () => getAccountMeta())
+
+  ipcMain.handle('settings:setAccountMeta', async (_event, next: AccountMetaMap) => {
+    setAccountMeta(next)
+  })
+
+  ipcMain.handle('compare:getSelectionPreference', async () => getSelectionPreference())
+
+  ipcMain.handle('compare:setSelectionPreference', async (_event, next: CompareSelectionPreference) => {
+    setSelectionPreference(next)
   })
 }

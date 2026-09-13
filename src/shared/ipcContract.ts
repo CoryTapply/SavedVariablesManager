@@ -1,5 +1,5 @@
 import type { ComparisonResult } from './diffTypes'
-import type { DiscoveredAccounts } from './addonTypes'
+import type { AccountMetaMap, AccountServerCharacters, CompareSelectionPreference, DiscoveredAccounts } from './addonTypes'
 
 export interface CopyFileRequest {
   source: string
@@ -36,6 +36,7 @@ export interface IpcContract {
   'wow:getRoot': { request: void; response: string | null }
   'wow:chooseRoot': { request: void; response: string | null }
   'wow:discover': { request: void; response: DiscoveredAccounts | null }
+  'wow:listAccountCharacters': { request: { accountDir: string }; response: AccountServerCharacters[] }
   'wow:getFlavorPreference': { request: void; response: string | null }
   'wow:setFlavorPreference': { request: string | null; response: void }
   'file:pickSaveDestination': { request: { defaultPath?: string }; response: string | null }
@@ -46,6 +47,10 @@ export interface IpcContract {
   'compare:run': { request: CompareRequest; response: ComparisonResult }
   'settings:getBackupsDir': { request: void; response: string }
   'settings:chooseBackupsDir': { request: void; response: string | null }
+  'settings:getAccountMeta': { request: void; response: AccountMetaMap }
+  'settings:setAccountMeta': { request: AccountMetaMap; response: void }
+  'compare:getSelectionPreference': { request: void; response: CompareSelectionPreference | null }
+  'compare:setSelectionPreference': { request: CompareSelectionPreference; response: void }
 }
 
 export type IpcChannel = keyof IpcContract

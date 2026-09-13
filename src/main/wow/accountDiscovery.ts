@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
-import type { DiscoveredAccounts, DiscoveredAddonFile, WowFlavor } from '@shared/addonTypes'
+import type { AccountServerCharacters, DiscoveredAccounts, DiscoveredAddonFile, WowFlavor } from '@shared/addonTypes'
 import { resolveAnalyzer } from '../addons/addonRegistry'
 
 /** Known Battle.net flavor-folder names -> friendly label. Not exhaustive by design - any
@@ -98,7 +98,8 @@ export function discoverAccounts(wowRoot: string): DiscoveredAccounts {
             displayName: analyzer.displayName,
             depth: analyzer.depth,
             filePath,
-            fileMtimeMs: stat.mtimeMs
+            fileMtimeMs: stat.mtimeMs,
+            fileSizeBytes: stat.size
           })
         }
       }
@@ -106,9 +107,48 @@ export function discoverAccounts(wowRoot: string): DiscoveredAccounts {
       // Listed even with zero files - a freshly-created account is still a valid copy
       // destination (see SelectFilesScreen's copy-to-account-B flow), just not a valid
       // comparison side.
-      accounts.push({ accountName, flavor, flavorLabel: label, savedVariablesDir: savedVarsDir, files })
+      accounts.push({ accountName, flavor, flavorLabel: label, accountDir, savedVariablesDir: savedVarsDir, files })
     }
   }
 
   return { wowRoot, accounts }
+}
+
+/**
+ * Servers (realm folders) and characters found directly under an account folder
+ * (`WTF/Account/<accountName>/<Realm>/<Character>`), for the settings dialog's expandable
+ * account rows. Same "no fixed allowlist, just real directories" approach as
+ * `findFlavorRoots`/`discoverAccounts`: every subfolder other than `SavedVariables` (the
+ * account-wide addon data, not a realm) is treated as a server.
+ */
+export function listAccountCharacters(accountDir: string): AccountServerCharacters[] {
+  if (!isDirectory(accountDir)) return []
+
+  let entries: string[]
+  try {
+    entries = readdirSync(accountDir)
+  } catch {
+    return []
+  }
+
+  const servers: AccountServerCharacters[] = []
+  for (const serverName of entries) {
+    if (serverName === 'SavedVariables') continue
+    const serverDir = join(accountDir, serverName)
+    if (!isDirectory(serverDir)) continue
+
+    let characterEntries: string[]
+    try {
+      characterEntries = readdirSync(serverDir)
+    } catch {
+      continue
+    }
+    const characters = characterEntries
+      .filter((name) => isDirectory(join(serverDir, name)))
+      .sort((a, b) => a.localeCompare(b))
+
+    servers.push({ server: serverName, characters })
+  }
+
+  return servers.sort((a, b) => a.server.localeCompare(b.server))
 }

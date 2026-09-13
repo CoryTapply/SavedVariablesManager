@@ -68,7 +68,7 @@ export const weakAurasAnalyzer: AddonAnalyzer = {
       if (keyB === undefined) continue
       const entryB = remainingB.get(keyB)
       if (!entryB) continue
-      entries.push(buildMatchedEntry(entryA, entryB, 'uid'))
+      entries.push(buildMatchedEntry(entryA, entryB, 'uid', entryA.uid ?? keyB))
       remainingA.delete(keyA)
       remainingB.delete(keyB)
       uidIndexB.delete(entryA.uid)
@@ -85,7 +85,7 @@ export const weakAurasAnalyzer: AddonAnalyzer = {
       if (keyB === undefined) continue
       const entryB = remainingB.get(keyB)
       if (!entryB) continue
-      entries.push(buildMatchedEntry(entryA, entryB, 'id'))
+      entries.push(buildMatchedEntry(entryA, entryB, 'id', keyB))
       remainingA.delete(keyA)
       remainingB.delete(keyB)
       idIndexB.delete(entryA.id)
@@ -96,6 +96,7 @@ export const weakAurasAnalyzer: AddonAnalyzer = {
       entries.push({
         status: 'removed',
         key: entry.id ?? entry.key,
+        entryId: entry.uid ?? entry.key,
         parent: entry.parent,
         controlledChildren: entry.controlledChildren,
         fieldDiffs: []
@@ -105,6 +106,7 @@ export const weakAurasAnalyzer: AddonAnalyzer = {
       entries.push({
         status: 'added',
         key: entry.id ?? entry.key,
+        entryId: entry.uid ?? entry.key,
         parent: entry.parent,
         controlledChildren: entry.controlledChildren,
         fieldDiffs: []
@@ -135,12 +137,13 @@ export const weakAurasAnalyzer: AddonAnalyzer = {
   }
 }
 
-function buildMatchedEntry(a: AuraEntry, b: AuraEntry, matchedBy: 'uid' | 'id'): AuraDiffEntry {
+function buildMatchedEntry(a: AuraEntry, b: AuraEntry, matchedBy: 'uid' | 'id', entryId: string): AuraDiffEntry {
   const fieldDiffs = diffLuaValues(a.data, b.data)
   return {
     status: fieldDiffs.length === 0 ? 'unchanged' : 'changed',
     matchedBy,
     key: b.id ?? a.id ?? b.key,
+    entryId,
     parent: b.parent ?? a.parent,
     controlledChildren: b.controlledChildren ?? a.controlledChildren,
     fieldDiffs

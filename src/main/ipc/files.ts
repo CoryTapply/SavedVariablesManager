@@ -9,11 +9,10 @@ function windowFor(event: IpcMainInvokeEvent): BrowserWindow | undefined {
 }
 
 /** Account folders under `WTF/Account` are named like `1234567890#5` for a numbered game
- * account - the `#N` suffix is what a player actually recognizes ("account 5"), so backups
- * are named from that rather than the full (often opaque, hashed) account folder name. */
+ * account - kept in full (not just the `#N` suffix) so backups from different accounts never
+ * collide on the same short name. */
 function accountBackupSuffix(accountName: string): string {
-  const afterHash = accountName.split('#').pop() || accountName
-  return afterHash.replace(/[^A-Za-z0-9_-]/g, '_') || 'account'
+  return accountName.replace(/[^A-Za-z0-9_-]/g, '_') || 'account'
 }
 
 /** `2026-09-11_14-30-05` - readable, sorts correctly, and avoids `:` (invalid in Windows

@@ -1,15 +1,24 @@
 import { app } from 'electron'
 import { join } from 'node:path'
 import Store from 'electron-store'
+import type { AccountMetaMap, CompareSelectionPreference } from '@shared/addonTypes'
 
 interface StoreSchema {
   wowRoot: string | null
   flavorPreference: string | null
   backupsDir: string | null
+  accountMeta: AccountMetaMap
+  selectionPreference: CompareSelectionPreference | null
 }
 
 export const appStore = new Store<StoreSchema>({
-  defaults: { wowRoot: null, flavorPreference: null, backupsDir: null }
+  defaults: {
+    wowRoot: null,
+    flavorPreference: null,
+    backupsDir: null,
+    accountMeta: {},
+    selectionPreference: null
+  }
 })
 
 export function getWowRoot(): string | null {
@@ -39,4 +48,20 @@ export function getBackupsDir(): string {
 
 export function setBackupsDir(path: string | null): void {
   appStore.set('backupsDir', path)
+}
+
+export function getAccountMeta(): AccountMetaMap {
+  return appStore.get('accountMeta')
+}
+
+export function setAccountMeta(next: AccountMetaMap): void {
+  appStore.set('accountMeta', next)
+}
+
+export function getSelectionPreference(): CompareSelectionPreference | null {
+  return appStore.get('selectionPreference')
+}
+
+export function setSelectionPreference(next: CompareSelectionPreference): void {
+  appStore.set('selectionPreference', next)
 }

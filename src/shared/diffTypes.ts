@@ -23,7 +23,13 @@ export interface AuraRecord {
 export interface AuraDiffEntry {
   status: DiffStatus
   matchedBy?: 'uid' | 'id'
+  /** Display name - the aura's `id` when known, otherwise its raw `displays`-table key. Not
+   * guaranteed unique (two auras can share a user-given `id`) - use `entryId` for identity. */
   key: string
+  /** Stable, collision-free identity for this entry within one comparison result - the raw
+   * `displays`-table key from whichever side matched (always unique per file), or the `uid`
+   * when both sides shared one. Suitable for a UI's "selected item" state; `key` is not. */
+  entryId: string
   parent?: string
   controlledChildren?: string[]
   fieldDiffs: FieldDiff[]

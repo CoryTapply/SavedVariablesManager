@@ -1,32 +1,15 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { ComparisonProvider, useComparison } from './state/ComparisonContext'
-import { SelectFilesScreen } from './routes/SelectFilesScreen'
-import { ComparisonResultsScreen } from './routes/ComparisonResultsScreen'
-import { SettingsScreen } from './routes/SettingsScreen'
+import { CompareScreen } from './routes/CompareScreen'
+import { SettingsDialog } from './components/app/SettingsDialog'
 
 function AppContent() {
-  const { comparisonResult, clearComparison } = useComparison()
-  const [showSettings, setShowSettings] = useState(false)
-
-  if (showSettings) {
-    return (
-      <div className="zp-screen-enter">
-        <SettingsScreen onBack={() => setShowSettings(false)} />
-      </div>
-    )
-  }
-
-  if (comparisonResult) {
-    return (
-      <div className="zp-screen-enter">
-        <ComparisonResultsScreen result={comparisonResult} onBack={clearComparison} />
-      </div>
-    )
-  }
+  const { settingsOpen, closeSettings } = useComparison()
   return (
-    <div className="zp-screen-enter">
-      <SelectFilesScreen onOpenSettings={() => setShowSettings(true)} />
-    </div>
+    <>
+      <CompareScreen />
+      {settingsOpen ? <SettingsDialog onClose={closeSettings} /> : null}
+    </>
   )
 }
 
@@ -42,9 +25,11 @@ const dragRegionStyle = {
 
 export function App() {
   return (
-    <ComparisonProvider>
-      <div style={dragRegionStyle} />
-      <AppContent />
-    </ComparisonProvider>
+    <div style={{ height: '100%' }}>
+      <ComparisonProvider>
+        <div style={dragRegionStyle} />
+        <AppContent />
+      </ComparisonProvider>
+    </div>
   )
 }
