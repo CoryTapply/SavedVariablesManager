@@ -1,4 +1,4 @@
-# SavedVariables Comparator — Product Requirements & Functionality
+# SavedVariables Manager — Product Requirements & Functionality
 
 ## 1. What this app is
 

@@ -9,7 +9,7 @@ import { resolveAnalyzer } from '../addons/addonRegistry'
 const KNOWN_FLAVOR_LABELS: Record<string, string> = {
   _retail_: 'Retail',
   _classic_: 'Classic',
-  _classic_era_: 'Classic Era / Anniversary',
+  _classic_era_: 'Classic Era',
   _classic_ptr_: 'Classic PTR',
   _classic_era_ptr_: 'Classic Era PTR',
   _ptr_: 'PTR',
