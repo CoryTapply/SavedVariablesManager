@@ -1,5 +1,5 @@
 {
-  "name": "saved-variables-analyzer",
+  "name": "saved-variable-manager",
   "version": "0.1.0",
   "description": "Compare WoW addon SavedVariables files (WeakAuras and others) between accounts.",
   "main": "out/main/index.js",
@@ -7,6 +7,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "postinstall": "node scripts/setDevAppName.mjs",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",

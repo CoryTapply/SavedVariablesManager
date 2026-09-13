@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 import { app, BrowserWindow, shell } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import icon from '../../resources/icon.png?asset'
 import { registerIpcHandlers } from './ipc/registerHandlers'
 
 function createWindow(): void {
@@ -14,6 +15,7 @@ function createWindow(): void {
     frame: process.platform === 'darwin',
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
     backgroundColor: '#0d0e18',
+    icon,
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
       sandbox: false,
@@ -41,7 +43,13 @@ function createWindow(): void {
 }
 
 void app.whenReady().then(() => {
-  electronApp.setAppUserModelId('dev.zerpy.savedvariablesanalyzer')
+  electronApp.setAppUserModelId('dev.zerpy.savedvariablemanager')
+
+  // Packaged macOS builds get their dock icon from the .icns bundled via
+  // Info.plist; in dev the dock shows Electron's default icon unless set here.
+  if (is.dev && process.platform === 'darwin') {
+    app.dock?.setIcon(icon)
+  }
 
   app.on('browser-window-created', (_event, window) => {
     optimizer.watchWindowShortcuts(window)
