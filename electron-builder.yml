@@ -10,6 +10,7 @@ mac:
   category: public.app-category.utilities
 win:
   target: nsis
+  artifactName: '${productName}-Setup-${version}.${ext}'
 linux:
   target: AppImage
 publish:

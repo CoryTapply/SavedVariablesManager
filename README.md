@@ -52,7 +52,7 @@ it finishes, both installers are attached to the release at:
 `https://github.com/CoryTapply/SavedVariablesManager/releases/tag/v1.0.0`
 
 Expected assets: `SavedVariableManager-<version>.dmg` (mac) and
-`SavedVariableManager Setup <version>.exe` (win).
+`SavedVariableManager-Setup-<version>.exe` (win).
 
 ## Installing an unsigned build
 
