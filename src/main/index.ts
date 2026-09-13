@@ -3,6 +3,7 @@ import { app, BrowserWindow, shell } from 'electron'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { registerIpcHandlers } from './ipc/registerHandlers'
+import { initUpdater } from './updater'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -13,7 +14,15 @@ function createWindow(): void {
     show: false,
     autoHideMenuBar: true,
     frame: process.platform === 'darwin',
-    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
+    titleBarStyle: 'hidden',
+    titleBarOverlay:
+      process.platform === 'darwin'
+        ? undefined
+        : {
+            color: '#0d0e18',
+            symbolColor: '#e6e6f0',
+            height: 32
+          },
     backgroundColor: '#0d0e18',
     icon,
     webPreferences: {
@@ -57,6 +66,8 @@ void app.whenReady().then(() => {
 
   registerIpcHandlers()
   createWindow()
+
+  if (!is.dev) initUpdater()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

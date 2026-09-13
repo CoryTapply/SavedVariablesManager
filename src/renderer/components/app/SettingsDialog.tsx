@@ -109,7 +109,7 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
   return (
     <Dialog
       title="Settings"
-      description="Tell the comparator where World of Warcraft lives and where to keep backups."
+      description="Tell the app where World of Warcraft lives and where to keep backups."
       onClose={onClose}
       width={620}
       footer={

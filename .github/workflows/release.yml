@@ -47,6 +47,7 @@ jobs:
           path: |
             dist/*.dmg
             dist/*.exe
+            dist/latest.yml
           if-no-files-found: error
 
   publish:
