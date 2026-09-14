@@ -1,4 +1,4 @@
-# SavedVariablesManager — app icon (variant 1B)
+# SavedVariablesManager — app icon (variant 1A)
 
 ## Files
 - `icon.svg` — master vector, 512 viewBox, WoW mark embedded as a data URI (self-contained).
