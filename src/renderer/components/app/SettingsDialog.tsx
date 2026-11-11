@@ -7,6 +7,8 @@ import { Input } from '../forms/Input'
 import { useComparison } from '../../state/ComparisonContext'
 import { invoke } from '../../lib/ipc'
 
+const RELEASES_TAGS_URL = 'https://github.com/CoryTapply/SavedVariablesManager/tags'
+
 function PathRow({ path, loading, onChange, chooseLabel }: { path: string | null; loading: boolean; onChange: () => void; chooseLabel: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--zp-space-3)', flexWrap: 'wrap' }}>
@@ -125,7 +127,13 @@ export function SettingsDialog({ onClose }: { onClose: () => void }) {
               account{uniqueAccountNames.length === 1 ? '' : 's'}
             </span>
             {appVersion ? (
-              <span style={{ font: 'var(--zp-text-micro)', color: 'var(--zp-text-4)' }}>Version {appVersion}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--zp-space-2)' }}>
+                <span style={{ font: 'var(--zp-text-micro)', color: 'var(--zp-text-4)' }}>Version {appVersion}</span>
+                {/* Opens in the system browser via main's setWindowOpenHandler. */}
+                <Button intent="ghost" size="sm" onClick={() => window.open(RELEASES_TAGS_URL)}>
+                  Download update
+                </Button>
+              </div>
             ) : null}
           </div>
           <div style={{ display: 'flex', gap: 'var(--zp-space-2)' }}>
