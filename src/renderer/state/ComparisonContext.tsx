@@ -237,13 +237,13 @@ export function ComparisonProvider({ children }: { children: React.ReactNode }) 
   const resolveFile = useCallback(
     (accountName: string): FileSelection | null => {
       if (!accountName || !selectedAddonId) return null
-      const account = accounts?.accounts.find((a) => a.accountName === accountName)
+      const account = accounts?.accounts.find((a) => a.flavor === selectedFlavor && a.accountName === accountName)
       const file = account?.files.find((f) => f.addonId === selectedAddonId)
       return file
         ? { filePath: file.filePath, label: file.displayName, depth: file.depth, fileSizeBytes: file.fileSizeBytes }
         : null
     },
-    [accounts, selectedAddonId]
+    [accounts, selectedAddonId, selectedFlavor]
   )
   const fileA = useMemo(() => resolveFile(accountNameA), [resolveFile, accountNameA])
   const fileB = useMemo(() => resolveFile(accountNameB), [resolveFile, accountNameB])
@@ -254,11 +254,11 @@ export function ComparisonProvider({ children }: { children: React.ReactNode }) 
   const copyDestination = useMemo<FileSelection | null>(() => {
     if (fileB) return fileB
     if (!fileA || !accountNameB) return null
-    const accountBEntry = accounts?.accounts.find((a) => a.accountName === accountNameB)
+    const accountBEntry = accounts?.accounts.find((a) => a.flavor === selectedFlavor && a.accountName === accountNameB)
     if (!accountBEntry?.savedVariablesDir) return null
     const fileName = basename(fileA.filePath)
     return { filePath: joinPath(accountBEntry.savedVariablesDir, fileName), label: fileName }
-  }, [fileB, fileA, accountNameB, accounts])
+  }, [fileB, fileA, accountNameB, accounts, selectedFlavor])
 
   const runComparison = useCallback(async () => {
     if (!fileA || !fileB) return
