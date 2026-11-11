@@ -3,6 +3,7 @@ import type { AccountMetaMap, DiscoveredAccounts } from '@shared/addonTypes'
 import type { ComparisonResult } from '@shared/diffTypes'
 import { invoke } from '../lib/ipc'
 import type { FileSelection } from './fileSelection'
+import { findAddonGroup, type AddonGroup } from '../lib/addonGroups'
 
 export interface WowFlavorOption {
   flavor: string
@@ -51,6 +52,12 @@ function compareReducer(state: CompareState, action: CompareAction): CompareStat
   }
 }
 
+export interface GroupCopyItem {
+  addonId: string
+  source: string
+  destination: string
+}
+
 export interface AccountLabel {
   label: string
   sub?: string
@@ -80,6 +87,11 @@ interface ComparisonContextValue {
   setAccountNameB: (name: string) => void
   swapAccounts: () => void
   copyDestination: FileSelection | null
+  /** Set when the selected "addon" is an AddonGroup (copy-only) rather than a single file. */
+  selectedGroup: AddonGroup | null
+  /** Account A's files belonging to `selectedGroup`, each paired with where it lands in
+   * account B. Empty when no group is selected or account A has none of its files. */
+  groupCopyItems: GroupCopyItem[]
   compared: boolean
   filter: CompareFilter
   toggleFilter: (kind: Exclude<CompareFilter, 'all'>) => void
@@ -260,6 +272,21 @@ export function ComparisonProvider({ children }: { children: React.ReactNode }) 
     return { filePath: joinPath(accountBEntry.savedVariablesDir, fileName), label: fileName }
   }, [fileB, fileA, accountNameB, accounts, selectedFlavor])
 
+  const selectedGroup = useMemo(() => findAddonGroup(selectedAddonId) ?? null, [selectedAddonId])
+  const groupCopyItems = useMemo<GroupCopyItem[]>(() => {
+    if (!selectedGroup || !accountNameA || !accountNameB) return []
+    const accountA = accounts?.accounts.find((a) => a.flavor === selectedFlavor && a.accountName === accountNameA)
+    const accountB = accounts?.accounts.find((a) => a.flavor === selectedFlavor && a.accountName === accountNameB)
+    if (!accountA || !accountB?.savedVariablesDir) return []
+    return accountA.files
+      .filter((f) => selectedGroup.matches(f.addonId))
+      .map((f) => ({
+        addonId: f.addonId,
+        source: f.filePath,
+        destination: joinPath(accountB.savedVariablesDir, basename(f.filePath))
+      }))
+  }, [selectedGroup, accountNameA, accountNameB, accounts, selectedFlavor])
+
   const runComparison = useCallback(async () => {
     if (!fileA || !fileB) return
     setComparing(true)
@@ -345,6 +372,8 @@ export function ComparisonProvider({ children }: { children: React.ReactNode }) 
         setAccountNameB,
         swapAccounts,
         copyDestination,
+        selectedGroup,
+        groupCopyItems,
         compared: compareState.compared,
         filter: compareState.filter,
         toggleFilter,

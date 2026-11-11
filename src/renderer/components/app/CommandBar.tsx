@@ -4,7 +4,6 @@ import { Panel } from '../surfaces/Panel'
 import { Button } from '../buttons/Button'
 import type { AddonOptions } from '../../lib/addonPriority'
 import type { AccountLabel } from '../../state/ComparisonContext'
-import type { FileSelection } from '../../state/fileSelection'
 import { AddonSelect } from './AddonSelect'
 import { AccountSelect } from './AccountSelect'
 
@@ -19,8 +18,9 @@ interface CommandBarProps {
   onAccountBChange: (accountName: string) => void
   onSwap: () => void
   labelForAccount: (accountName: string) => AccountLabel
-  fileA: FileSelection | null
-  fileB: FileSelection | null
+  /** Whether each side has a file for the selected addon (any member file, for a group). */
+  hasFileA: boolean
+  hasFileB: boolean
   addonLabel: string
   canCompare: boolean
   comparing: boolean
@@ -59,8 +59,8 @@ export function CommandBar({
   onAccountBChange,
   onSwap,
   labelForAccount,
-  fileA,
-  fileB,
+  hasFileA,
+  hasFileB,
   addonLabel,
   canCompare,
   comparing,
@@ -88,7 +88,7 @@ export function CommandBar({
           value={accountNameA}
           onChange={onAccountAChange}
           labelForAccount={labelForAccount}
-          noFileLabel={accountNameA && !fileA ? `no ${addonLabel} file yet` : undefined}
+          noFileLabel={accountNameA && !hasFileA ? `no ${addonLabel} file yet` : undefined}
         />
       </div>
 
@@ -109,7 +109,7 @@ export function CommandBar({
           value={accountNameB}
           onChange={onAccountBChange}
           labelForAccount={labelForAccount}
-          noFileLabel={accountNameB && !fileB ? `no ${addonLabel} file yet` : undefined}
+          noFileLabel={accountNameB && !hasFileB ? `no ${addonLabel} file yet` : undefined}
         />
       </div>
 

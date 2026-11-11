@@ -54,6 +54,8 @@ export function CompareScreen() {
     selectedAddonId,
     setSelectedAddonId,
     copyDestination,
+    selectedGroup,
+    groupCopyItems,
     compared,
     changeSelection,
     comparisonResult,
@@ -62,7 +64,8 @@ export function CompareScreen() {
     clearFilter,
     openSettings,
     labelForAccount,
-    sortedAccounts
+    sortedAccounts,
+    refreshAccounts
   } = useComparison()
 
   const [copying, setCopying] = useState(false)
@@ -92,9 +95,20 @@ export function CompareScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addonOptions, selectedAddonId])
 
-  const canCompare = Boolean(fileA && fileB) && !comparing
-  const canCopy =
-    Boolean(fileA && copyDestination && accountNameB) && fileA?.filePath !== copyDestination?.filePath && !copying
+  const canCompare = !selectedGroup && Boolean(fileA && fileB) && !comparing
+  const canCopy = selectedGroup
+    ? groupCopyItems.length > 0 && accountNameA !== accountNameB && !copying
+    : Boolean(fileA && copyDestination && accountNameB) && fileA?.filePath !== copyDestination?.filePath && !copying
+
+  const accountHasGroupFile = (accountName: string) =>
+    Boolean(
+      selectedGroup &&
+        visibleAccounts?.accounts
+          .find((a) => a.accountName === accountName)
+          ?.files.some((f) => selectedGroup.matches(f.addonId))
+    )
+  const hasFileA = selectedGroup ? accountHasGroupFile(accountNameA) : Boolean(fileA)
+  const hasFileB = selectedGroup ? accountHasGroupFile(accountNameB) : Boolean(fileB)
 
   useEffect(() => {
     if (!copyToast) return
@@ -106,7 +120,59 @@ export function CompareScreen() {
     await runComparison()
   }
 
+  /** Copies every file in the selected group A -> B, one `file:copyAddonFile` call each so every
+   * overwritten file gets its own backup. Keeps going past a failure and reports them all. */
+  const handleGroupCopy = async () => {
+    if (!selectedGroup || groupCopyItems.length === 0 || !accountNameB) return
+    setCopying(true)
+    const labelB = labelForAccount(accountNameB)
+    const suffixB = labelB.sub ? labelB.label : accountSuffix(labelB.label)
+    const failures: string[] = []
+    let backups = 0
+    for (const item of groupCopyItems) {
+      try {
+        const result = await invoke('file:copyAddonFile', {
+          source: item.source,
+          destination: item.destination,
+          addonId: item.addonId,
+          destinationAccountName: accountNameB
+        })
+        if (result.ok) {
+          if (result.backupPath) backups++
+        } else {
+          failures.push(`${basename(item.source)}: ${result.message}`)
+        }
+      } catch (err) {
+        failures.push(`${basename(item.source)}: ${err instanceof Error ? err.message : String(err)}`)
+      }
+    }
+    const copied = groupCopyItems.length - failures.length
+    if (failures.length === 0) {
+      setCopyToast({
+        tone: 'success',
+        title: `Copied ${copied} ${selectedGroup.label} files to account ${suffixB}`,
+        body: (
+          <>
+            {backups > 0 ? `${backups} existing ${backups === 1 ? 'file' : 'files'} backed up. ` : 'No prior files to back up. '}
+            <span style={{ color: 'var(--zp-accent-300)' }}>Click to open the folder in File Explorer</span>
+          </>
+        ),
+        revealPath: groupCopyItems[0]!.destination
+      })
+    } else {
+      setCopyToast({
+        tone: 'danger',
+        title: `Copied ${copied} of ${groupCopyItems.length} files to account ${suffixB}`,
+        body: failures.join('; '),
+        revealPath: null
+      })
+    }
+    await refreshAccounts()
+    setCopying(false)
+  }
+
   const handleCopy = async () => {
+    if (selectedGroup) return handleGroupCopy()
     if (!fileA || !copyDestination || !accountNameB) return
     setCopying(true)
     const fileName = basename(fileA.filePath)
@@ -268,8 +334,8 @@ export function CompareScreen() {
               onAccountBChange={setAccountNameB}
               onSwap={swapAccounts}
               labelForAccount={labelForAccount}
-              fileA={fileA}
-              fileB={fileB}
+              hasFileA={hasFileA}
+              hasFileB={hasFileB}
               addonLabel={selectedAddonLabel}
               canCompare={canCompare}
               comparing={comparing}

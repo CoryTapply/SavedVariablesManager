@@ -1,4 +1,5 @@
 import type { DiscoveredAccounts } from '@shared/addonTypes'
+import { ADDON_GROUPS } from './addonGroups'
 
 export interface AddonOption {
   addonId: string
@@ -27,7 +28,8 @@ export interface AddonOptions {
 }
 
 /** Every addon discovered across all (visible) accounts, deduped by `addonId`, split into the
- * priority cards (in PRIORITY_ADDONS order, only when actually present) and everything else. */
+ * priority cards (in PRIORITY_ADDONS order, only when actually present, followed by any
+ * ADDON_GROUPS with at least one member present) and everything else. */
 export function computeAddonOptions(accounts: DiscoveredAccounts | null): AddonOptions {
   const byId = new Map<string, AddonOption>()
   for (const account of accounts?.accounts ?? []) {
@@ -44,6 +46,9 @@ export function computeAddonOptions(accounts: DiscoveredAccounts | null): AddonO
       cards.push({ addonId: match.addonId, label: priority.label })
       cardIds.add(match.addonId)
     }
+  }
+  for (const group of ADDON_GROUPS) {
+    if (Array.from(byId.keys()).some(group.matches)) cards.push({ addonId: group.id, label: group.label })
   }
 
   const rest = Array.from(byId.values())
